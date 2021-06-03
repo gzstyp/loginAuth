@@ -26,7 +26,7 @@ public final class ToolJWT{
     return getJwtAuth(vertx).generateToken(authInfo);
   }
 
-  //todo 好使!!!
+  //todo 好使!!!,用法:ToolJWT.authInfo(vertx,token).onSuccess(user -> {}).onFailure(err->{});
   public static Future<User> authInfo(final Vertx vertx,final String token){
     final Promise<User> promise = Promise.promise();
     getJwtAuth(vertx).authenticate(new JsonObject().put("token",token))

@@ -33,8 +33,8 @@ public class Launcher extends AbstractVerticle {
       ToolJWT.authInfo(vertx,token).onSuccess(user -> {
         final JsonObject principal = user.principal();//凭证
         final JsonObject attributes = user.attributes();//含 exp, iat, nbf, audience, issuer 等字段是否满足配置要求
-        final String userId = attributes.getString("userId");
-        context.put("userId->",userId);
+        final JsonObject info = attributes.getJsonObject("accessToken");
+        context.put("userId",info.getString("userId"));
         context.put("attributes->",attributes);
         final Authorizations authorizations = user.authorizations();//角色或权限集合
         System.out.println(attributes);

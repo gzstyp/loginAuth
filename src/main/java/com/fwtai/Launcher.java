@@ -6,6 +6,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.authorization.Authorizations;
 import io.vertx.ext.web.Router;
 
 public class Launcher extends AbstractVerticle {
@@ -19,8 +20,8 @@ public class Launcher extends AbstractVerticle {
 
     //第三步,配置Router解析url
     router.get("/").handler(context -> {
-      final JsonObject data = new JsonObject().put("userId","admin").put("role","super1");
-      String token = ToolJWT.createToken(vertx,data);
+      final JsonObject data = new JsonObject().put("userId","102420485120").put("role","role_super");
+      String token = ToolJWT.create(vertx,data);
       context.response()
         .putHeader("content-type","text/html;charset=utf-8")
         .end(token);
@@ -30,6 +31,14 @@ public class Launcher extends AbstractVerticle {
     router.get("/authInfo").handler(context -> {
       final String token = context.request().getParam("token");
       ToolJWT.authInfo(vertx,token).onSuccess(user -> {
+        final JsonObject principal = user.principal();//凭证
+        final JsonObject attributes = user.attributes();//含 exp, iat, nbf, audience, issuer 等字段是否满足配置要求
+        final String userId = attributes.getString("userId");
+        context.put("userId->",userId);
+        context.put("attributes->",attributes);
+        final Authorizations authorizations = user.authorizations();//角色或权限集合
+        System.out.println(attributes);
+        System.out.println("角色权限authorizations->"+authorizations);
           context.response()
           .putHeader("content-type","text/html;charset=utf-8")
           .end(user.principal().encode());

@@ -53,8 +53,8 @@ public class Launcher extends AbstractVerticle {
 
     //http://127.0.0.1:88/getEc
     router.get("/getEc").handler(context -> {
-      final JsonObject data = new JsonObject().put("userId","102420485120").put("role","role_super");
-      final String token = ToolJwtEC.createToken(vertx,data,null);
+      final String userId = "102420485120";
+      final String token = ToolJwtEC.expireAccessToken(vertx,userId);
       context.response()
         .putHeader("content-type","text/html;charset=utf-8")
         .end(token);

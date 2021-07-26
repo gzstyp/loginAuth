@@ -94,7 +94,7 @@ public final class ToolJWT implements Serializable{
   //todo 好使!!!,用法:ToolJWT.authInfo(vertx,token).onSuccess(user -> {}).onFailure(err->{});
   public static Future<User> authInfo(final Vertx vertx,final String token){
     final Promise<User> promise = Promise.promise();
-    getAuth(vertx).authenticate(new JsonObject().put("token",token).put("audience",getAudience()))
+    getAuth(vertx).authenticate(new JsonObject().put("token",token))
       .onSuccess(promise::complete)
       .onFailure(promise::fail);
     return promise.future();

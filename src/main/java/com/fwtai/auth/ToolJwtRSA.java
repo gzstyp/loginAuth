@@ -14,8 +14,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-//todo 采用openSSL生成的密钥
-public final class ToolJWT implements Serializable{
+//todo 采用openSSL生成的RSA密钥
+public final class ToolJwtRSA implements Serializable{
 
   private final static String issuer = "贵州富翁泰科技有限责任公司(www.fwtai.com)";//jwt签发者
 

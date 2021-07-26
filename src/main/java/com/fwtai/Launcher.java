@@ -1,6 +1,7 @@
 package com.fwtai;
 
-import com.fwtai.auth.ToolJWT;
+import com.fwtai.auth.ToolJwtEC;
+import com.fwtai.auth.ToolJwtRSA;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -21,7 +22,7 @@ public class Launcher extends AbstractVerticle {
     //第三步,配置Router解析url
     router.get("/").handler(context -> {
       final JsonObject data = new JsonObject().put("userId","102420485120").put("role","role_super");
-      String token = ToolJWT.create(vertx,data);
+      String token = ToolJwtRSA.create(vertx,data);
       context.response()
         .putHeader("content-type","text/html;charset=utf-8")
         .end(token);
@@ -30,7 +31,7 @@ public class Launcher extends AbstractVerticle {
     //http://127.0.0.1:88/authInfo?token=xxx
     router.get("/authInfo").handler(context -> {
       final String token = context.request().getParam("token");
-      ToolJWT.authInfo(vertx,token).onSuccess(user -> {
+      ToolJwtRSA.authInfo(vertx,token).onSuccess(user -> {
         final JsonObject principal = user.principal();//凭证
         final JsonObject attributes = user.attributes();//含 exp, iat, nbf, audience, issuer 等字段是否满足配置要求
         final JsonObject info = attributes.getJsonObject("accessToken");
@@ -42,6 +43,38 @@ public class Launcher extends AbstractVerticle {
           context.response()
           .putHeader("content-type","text/html;charset=utf-8")
           .end(user.principal().encode());
+        }
+      ).onFailure(err->{
+        context.response()
+          .putHeader("content-type","text/html;charset=utf-8")
+          .end("无效的token");
+      });
+    });
+
+    //http://127.0.0.1:88/getEc
+    router.get("/getEc").handler(context -> {
+      final JsonObject data = new JsonObject().put("userId","102420485120").put("role","role_super");
+      final String token = ToolJwtEC.createToken(vertx,data,null);
+      context.response()
+        .putHeader("content-type","text/html;charset=utf-8")
+        .end(token);
+    });
+
+    //http://127.0.0.1:88/parse?token=Xxx
+    router.get("/parse").handler(context -> {
+      final String token = context.request().getParam("token");
+      ToolJwtEC.authInfo(vertx,token).onSuccess(user -> {
+          final JsonObject principal = user.principal();//凭证
+          final JsonObject attributes = user.attributes();//含 exp, iat, nbf, audience, issuer 等字段是否满足配置要求
+          final JsonObject info = attributes.getJsonObject("accessToken");
+          context.put("userId",info.getString("userId"));
+          context.put("attributes->",attributes);
+          final Authorizations authorizations = user.authorizations();//角色或权限集合
+          System.out.println(attributes);
+          System.out.println("角色权限authorizations->"+authorizations);
+          context.response()
+            .putHeader("content-type","text/html;charset=utf-8")
+            .end(user.principal().encode());
         }
       ).onFailure(err->{
         context.response()
